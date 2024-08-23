@@ -36,6 +36,7 @@ func (l *Log) Get(offset int64) (Record, error) {
 
 func main() {
 	r := mux.NewRouter()
+
 	var log Log
 	log_router := r.PathPrefix("/log").Subrouter()
 
