@@ -37,6 +37,10 @@ func (l *Log) Get(offset int64) (Record, error) {
 func main() {
 	r := mux.NewRouter()
 
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Everything is working fine!"))
+	})
+
 	var log Log
 	log_router := r.PathPrefix("/log").Subrouter()
 
