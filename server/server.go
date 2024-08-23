@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"sync"
@@ -31,6 +32,10 @@ func (l *Log) Append(record Record) (int64, error) {
 func (l *Log) Get(offset int64) (Record, error) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
+	if int(offset) >= len(l.records) {
+		return Record{}, fmt.Errorf("no record at offset %d", offset)
+
+	}
 	return l.records[offset], nil
 }
 
