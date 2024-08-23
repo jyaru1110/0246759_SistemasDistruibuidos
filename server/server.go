@@ -74,11 +74,18 @@ func main() {
 		vars := mux.Vars(r)
 		offset := vars["offset"]
 		offset_int, err := strconv.ParseInt(offset, 10, 64)
-		record, err_get := log.Get(offset_int)
 
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("Need to provide an numeric offset"))
+			return
+		}
+
+		record, err_get := log.Get(offset_int)
 		if err_get != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			w.Write([]byte(err_get.Error()))
+			return
 		}
 
 		json.NewEncoder(w).Encode(record)
