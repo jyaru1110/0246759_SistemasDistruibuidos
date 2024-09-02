@@ -1,5 +1,8 @@
-module project/server
+module server
 
 go 1.22.6
 
-require github.com/gorilla/mux v1.8.1 // indirect
+require (
+	github.com/tysonmote/gommap v0.0.3
+	google.golang.org/protobuf v1.34.2
+)
