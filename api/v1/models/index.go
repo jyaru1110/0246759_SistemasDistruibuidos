@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	offWidth uint64 = 8 // 8 bytes for uint64
-	posWidth uint64 = 4 // 4 bytes for uint32
+	offWidth uint64 = 4 // 4 bytes for uint64
+	posWidth uint64 = 8 // 8 bytes for uint32
 	entWidth        = offWidth + posWidth
 )
 
@@ -24,8 +24,9 @@ func (i *index) Read(in int64) (uint32, uint64, error) {
 	if i.size == 0 {
 		return 0, 0, io.EOF
 	}
-	if in <= -1 {
-		return 0, 0, io.EOF
+	if in == -1 {
+		in = int64(i.size / entWidth)
+		in--
 	}
 
 	pos := in * int64(entWidth)
@@ -38,18 +39,18 @@ func (i *index) Read(in int64) (uint32, uint64, error) {
 	return off, idx, nil
 }
 
-func (i *index) Write(offset uint64, pos uint32) (uint64, error) {
+func (i *index) Write(offset uint32, pos uint64) error {
 	if i.size+uint64(entWidth) > uint64(len(i.mmap)) {
-		return 0, io.EOF
+		return io.EOF
 	}
 
-	binary.BigEndian.PutUint64(i.mmap[i.size:], offset)
+	binary.BigEndian.PutUint32(i.mmap[i.size:], offset)
 
-	binary.BigEndian.PutUint32(i.mmap[i.size+uint64(offWidth):], pos)
+	binary.BigEndian.PutUint64(i.mmap[i.size+uint64(offWidth):], pos)
 
 	i.size += uint64(entWidth)
 
-	return i.size, nil
+	return nil
 }
 
 func (i *index) Close() error {
@@ -68,4 +69,8 @@ func (i *index) Remove() error {
 		return err
 	}
 	return nil
+}
+
+func (i *index) Name() string {
+	return i.file.Name()
 }

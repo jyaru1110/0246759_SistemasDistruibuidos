@@ -3,9 +3,7 @@ package models
 import (
 	"bufio"
 	"encoding/binary"
-	"io"
 	"os"
-	api "server/api/v1"
 	"sync"
 )
 
@@ -24,24 +22,26 @@ type store struct {
 	size uint64
 }
 
-func (s *store) Read(in uint64) (out *api.Record, err error) {
-	p := make([]byte, lenWidth)
-	n, err := s.ReadAt(p, int64(in))
-
-	if err != nil {
+func (s *store) Read(in uint64) (out []byte, err error) {
+	if err := s.buf.Flush(); err != nil {
 		return nil, err
 	}
 
-	if n != lenWidth {
-		return nil, io.EOF
+	value_size_bytes := make([]byte, lenWidth)
+
+	if _, err := s.File.ReadAt(value_size_bytes, int64(in)); err != nil {
+		return nil, err
 	}
 
-	out = &api.Record{
-		Value:  p,
-		Offset: uint64(in),
+	value_size := enc.Uint64(value_size_bytes)
+
+	value := make([]byte, value_size)
+
+	if _, err := s.File.ReadAt(value, int64(in+lenWidth)); err != nil {
+		return nil, err
 	}
 
-	return out, nil
+	return value, nil
 }
 
 func (s *store) ReadAt(p []byte, off int64) (int, error) {
@@ -53,7 +53,7 @@ func (s *store) ReadAt(p []byte, off int64) (int, error) {
 	return s.File.ReadAt(p, int64(off))
 }
 
-func (s *store) Append(value []byte) (bytes uint32, off uint32, err error) {
+func (s *store) Append(value []byte) (bytes uint64, off uint64, err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -61,17 +61,17 @@ func (s *store) Append(value []byte) (bytes uint32, off uint32, err error) {
 		return 0, 0, err
 	}
 
-	off = uint32(s.size)
+	off = s.size
+	if err := binary.Write(s.buf, enc, uint64(len(value))); err != nil {
+		return 0, 0, err
+	}
 	if err := binary.Write(s.buf, enc, value); err != nil {
 		return 0, 0, err
 	}
 
-	if err = binary.Write(s, enc, value); err != nil {
-		return 0, 0, err
-	}
-	s.size += 1
+	s.size += lenWidth + uint64(len(value))
 
-	return uint32(len(value)), off, nil
+	return uint64(lenWidth) + uint64(len(value)), off, nil
 }
 
 func (s *store) Remove() error {
@@ -79,4 +79,23 @@ func (s *store) Remove() error {
 		return err
 	}
 	return os.Remove(s.Name())
+}
+
+func newStore(f *os.File) (*store, error) {
+	file_info, err := f.Stat()
+	if err != nil {
+		return nil, err
+	}
+	return &store{
+		File: f,
+		buf:  bufio.NewWriter(f),
+		size: uint64(file_info.Size()),
+	}, nil
+}
+
+func (s *store) Close() error {
+	if err := s.buf.Flush(); err != nil {
+		return err
+	}
+	return s.File.Close()
 }

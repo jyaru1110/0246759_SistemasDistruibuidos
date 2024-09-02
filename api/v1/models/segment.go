@@ -1,13 +1,13 @@
 package models
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"path"
 	api "server/api/v1"
 
 	"github.com/tysonmote/gommap"
+	"google.golang.org/protobuf/proto"
 )
 
 type segment struct {
@@ -15,14 +15,6 @@ type segment struct {
 	index                  *index
 	baseOffset, nextOffset uint64
 	config                 Config
-}
-
-func newStore(f *os.File) (*store, error) {
-	return &store{
-		File: f,
-		buf:  bufio.NewWriter(f),
-		size: 0,
-	}, nil
 }
 
 func newIndex(f *os.File, c Config) (*index, error) {
@@ -83,23 +75,47 @@ func newSegment(dir string, baseOffset uint64, c Config) (*segment, error) {
 }
 
 func (s *segment) Append(record *api.Record) (uint64, error) {
-	_, pos, err := s.store.Append(record.Value)
+	current_offset := s.nextOffset
+	record.Offset = current_offset
+
+	value, err := proto.Marshal(record)
 	if err != nil {
 		return 0, err
 	}
-	off, err := s.index.Write(record.Offset, pos)
+
+	_, pos, err := s.store.Append(value)
 	if err != nil {
 		return 0, err
 	}
-	return uint64(off), nil
+	if err = s.index.Write(
+		uint32(s.nextOffset-uint64(s.baseOffset)),
+		pos,
+	); err != nil {
+		return 0, err
+	}
+
+	s.nextOffset++
+	return current_offset, nil
 }
 
 func (s *segment) Read(off uint64) (*api.Record, error) {
-	pos, _, err := s.index.Read(int64(off - s.baseOffset))
+	_, pos, err := s.index.Read(int64(off - s.baseOffset))
 	if err != nil {
 		return nil, err
 	}
-	return s.store.Read(uint64(pos))
+	record := &api.Record{}
+	record.Offset = off
+	temp_value, err := s.store.Read(pos)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if err = proto.Unmarshal(temp_value, record); err != nil {
+		return nil, err
+	}
+
+	return record, err
 }
 
 func (s *segment) IsMaxed() bool {

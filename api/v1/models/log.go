@@ -210,7 +210,7 @@ type originReader struct {
 }
 
 func (o *originReader) Read(p []byte) (int, error) {
-	n, err := o.ReadAt(p, int64(o.off))
+	n, err := o.ReadAt(p, o.off)
 	o.off += int64(n)
 	return n, err
 }
