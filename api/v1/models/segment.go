@@ -83,7 +83,7 @@ func newSegment(dir string, baseOffset uint64, c Config) (*segment, error) {
 }
 
 func (s *segment) Append(record *api.Record) (uint64, error) {
-	_, pos, err := s.store.Append(record)
+	_, pos, err := s.store.Append(record.Value)
 	if err != nil {
 		return 0, err
 	}
@@ -99,7 +99,7 @@ func (s *segment) Read(off uint64) (*api.Record, error) {
 	if err != nil {
 		return nil, err
 	}
-	return s.store.Read(int32(pos))
+	return s.store.Read(uint64(pos))
 }
 
 func (s *segment) IsMaxed() bool {

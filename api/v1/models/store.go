@@ -24,9 +24,9 @@ type store struct {
 	size uint64
 }
 
-func (s *store) Read(in int32) (out *api.Record, err error) {
+func (s *store) Read(in uint64) (out *api.Record, err error) {
 	p := make([]byte, lenWidth)
-	n, err := s.ReadAt(p, in)
+	n, err := s.ReadAt(p, int64(in))
 
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (s *store) Read(in int32) (out *api.Record, err error) {
 	return out, nil
 }
 
-func (s *store) ReadAt(p []byte, off int32) (int, error) {
+func (s *store) ReadAt(p []byte, off int64) (int, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if err := s.buf.Flush(); err != nil {
@@ -53,7 +53,7 @@ func (s *store) ReadAt(p []byte, off int32) (int, error) {
 	return s.File.ReadAt(p, int64(off))
 }
 
-func (s *store) Append(record *api.Record) (bytes int, off uint32, err error) {
+func (s *store) Append(value []byte) (bytes uint32, off uint32, err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -62,16 +62,16 @@ func (s *store) Append(record *api.Record) (bytes int, off uint32, err error) {
 	}
 
 	off = uint32(s.size)
-	if err := binary.Write(s.buf, enc, record.Value); err != nil {
+	if err := binary.Write(s.buf, enc, value); err != nil {
 		return 0, 0, err
 	}
 
-	if err = binary.Write(s, enc, record.Value); err != nil {
+	if err = binary.Write(s, enc, value); err != nil {
 		return 0, 0, err
 	}
 	s.size += 1
 
-	return len(record.Value), off, nil
+	return uint32(len(value)), off, nil
 }
 
 func (s *store) Remove() error {
