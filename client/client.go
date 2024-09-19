@@ -30,7 +30,8 @@ func main() {
 		fmt.Printf("could not produce: %v", err)
 	}
 
-	fmt.Println(r.Offset)
+	fmt.Printf("offset: %d", r.Offset)
+	fmt.Println()
 
 	consumeClient, err := c.Consume(ctx, &api.ConsumeRequest{Offset: r.Offset})
 
@@ -38,5 +39,6 @@ func main() {
 		fmt.Printf("could not consume: %v", err)
 	}
 
-	fmt.Println(string(consumeClient.Record.Value))
+	fmt.Printf("Value:%s", string(consumeClient.Record.Value))
+	fmt.Println()
 }
