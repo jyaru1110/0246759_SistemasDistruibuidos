@@ -24,6 +24,8 @@ func main() {
 		fmt.Println(err)
 	}
 
+	fmt.Println("Server is running on port :8080")
+
 	api.RegisterLogServer(s, &servergrpc.GrpcServer{CommitLog: commitLog})
 	s.Serve(lis)
 }
