@@ -5,7 +5,7 @@ import (
 	"net"
 	api "server/api/v1"
 	log "server/log"
-	servergrpc "server/servergrpc"
+	servergrpc "server/logService"
 
 	"google.golang.org/grpc"
 )

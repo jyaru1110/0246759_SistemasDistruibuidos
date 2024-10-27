@@ -1,4 +1,4 @@
-package servergrpc
+package logService
 
 import (
 	"context"
