@@ -28,7 +28,8 @@ func (s *GrpcServer) ProduceTodo(ctx context.Context, req *api.ProduceTodoReques
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(insertRes.InsertedID)
+	fmt.Println("inserted id: ", insertRes.InsertedID)
+
 	id_res := insertRes.InsertedID
 	id_res_string := fmt.Sprintf("%v", id_res)
 	return &api.ProduceTodoResponse{Id: id_res_string}, nil
@@ -37,6 +38,7 @@ func (s *GrpcServer) ProduceTodo(ctx context.Context, req *api.ProduceTodoReques
 func (s *GrpcServer) Get(ctx context.Context, req *api.GetRequest) (*api.GetResponse, error) {
 	mongo_res, err := s.Todo.GetTodo(ctx, req.Id)
 	if err != nil {
+		fmt.Println("Error: ", err)
 		return nil, err
 	}
 

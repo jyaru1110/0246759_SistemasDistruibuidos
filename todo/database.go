@@ -8,13 +8,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type Database struct {
-	db *mongo.Collection
-}
-
-func NewDatabase() *Database {
+func NewDatabase() *mongo.Collection {
+	fmt.Println("Connecting to MongoDB")
 	//Set client options
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017").SetAuth(options.Credential{
+		Username: "jyaru",
+		Password: "12345",
+	})
 
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.Background(), clientOptions)
@@ -28,7 +28,9 @@ func NewDatabase() *Database {
 		fmt.Println(err)
 	}
 
+	fmt.Println("Connected to MongoDB")
+
 	// Set the database and collection variables
-	db := client.Database("todoapp").Collection("todo")
-	return &Database{db: db}
+	collection := client.Database("todoapp").Collection("todo")
+	return collection
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	api "server/api/v1"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -26,7 +27,9 @@ func (t *TodoController) CreateTodo(ctx context.Context, newTodo *api.Todo) (*mo
 }
 
 func (t *TodoController) GetTodo(ctx context.Context, id string) (*mongo.SingleResult, error) {
-	single_res := t.db.FindOne(ctx, id)
+	filter := bson.M{"id": id}
+
+	single_res := t.db.FindOne(ctx, filter)
 
 	if single_res.Err() != nil {
 		return nil, single_res.Err()
