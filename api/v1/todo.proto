@@ -1,0 +1,31 @@
+
+syntax = "proto3";
+package api.v1;
+
+option go_package = "server/api/v1";
+
+service TodoService {
+    rpc Get(GetRequest) returns (GetResponse) {}
+    rpc ProduceTodo(ProduceTodoRequest) returns (ProduceTodoResponse) {}
+}
+
+message Todo {
+    string value = 1;
+    string id = 2;
+}
+
+message ProduceTodoRequest {
+    Todo todo = 1;
+}
+
+message ProduceTodoResponse {
+    string id = 1;
+}
+
+message GetRequest {
+   string id = 1;
+}
+
+message GetResponse {
+    Todo todo = 2;
+}
