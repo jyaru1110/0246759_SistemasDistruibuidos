@@ -11,10 +11,10 @@ COPY . .
 RUN go mod download
 
 # Build the Go application
-RUN go build -o gateway_bin gateway/gateway.go
+RUN go build -o todoservice_bin cmd/todo/main.go 
 
 # Make port available to the world outside this container
-EXPOSE 8082
+EXPOSE 8081
 
 # Run the gRPC server
-CMD ["./gateway_bin"]
+CMD ["./todoservice_bin"]

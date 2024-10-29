@@ -1,0 +1,25 @@
+services:
+  gateway:
+    build: .
+    ports:
+      - "8082:8082"
+  logservice:
+    build:
+      context: ./
+      dockerfile: ./images/log/Dockerfile
+    ports:
+      - "8080:8080"
+  todoservice:
+    build: 
+      context: ./
+      dockerfile: ./images/todo/Dockerfile
+    ports:
+      - "8081:8081"
+  db_mongo: 
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=jyaru
+      - MONGO_INITDB_ROOT_PASSWORD=12345
+
