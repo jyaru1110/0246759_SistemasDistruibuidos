@@ -19,7 +19,7 @@ func main() {
 	s := grpc.NewServer()
 	config := log.Config{}
 
-	commitLog, err := log.NewLog("./data", config)
+	commitLog, err := log.NewLog("./data/logs", config)
 	if err != nil {
 		fmt.Println(err)
 	}
