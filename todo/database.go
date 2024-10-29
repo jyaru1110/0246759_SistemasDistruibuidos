@@ -11,7 +11,7 @@ import (
 func NewDatabase() *mongo.Collection {
 	fmt.Println("Connecting to MongoDB")
 	//Set client options
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017").SetAuth(options.Credential{
+	clientOptions := options.Client().ApplyURI("mongodb://db_mongo:27017").SetAuth(options.Credential{
 		Username: "jyaru",
 		Password: "12345",
 	})
