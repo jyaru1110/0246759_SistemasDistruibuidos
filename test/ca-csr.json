@@ -1,0 +1,16 @@
+{
+    "CN" : "CA confiable",
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "MX",
+            "L": "Nezayork",
+            "ST": "Mexico",
+            "O": "YOMERITO",
+            "OU": "CA Services"
+        }
+    ]
+}

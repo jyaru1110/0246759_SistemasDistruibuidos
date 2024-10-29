@@ -1,6 +1,6 @@
 # Esto nos ayuda a posicionar nuestros config files en una carpeta dentro de nuestro proyecto
 
-CONFIG_PATH=${HOME}/Projects/GoGoGo/SistemasDistribuidos-Proyecto/.SistemasDistribuidos-Proyecto/
+CONFIG_PATH=${HOME}/Desktop/0246759_SistemasDistruibuidos/.SistemasDistribuidos-Proyecto/
 
 .PHONY: init
 
