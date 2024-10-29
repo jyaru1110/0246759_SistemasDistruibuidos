@@ -10,8 +10,11 @@ import (
 	"strconv"
 	"time"
 
+	tlsconfig "server/config"
+
 	"github.com/gorilla/mux"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
@@ -19,13 +22,26 @@ var addr_todo = flag.String("addr_todo", "todoservice:8081", "the address to con
 var addr_log = flag.String("addr_log", "logservice:8080", "the address to connect to")
 
 func main() {
+	//Tood service connection
 	todo_conn, err := grpc.NewClient(*addr_todo, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		fmt.Printf("could not connect to todo grpcserver: %v", err)
 		return
 	}
+	// Load client TLS credentials
+	clientTLSConfig, err := tlsconfig.SetupTLSConfig(tlsconfig.TLSConfig{
+		CertFile: tlsconfig.ClientCertFile,
+		KeyFile:  tlsconfig.ClientKeyFile,
+		CAFile:   tlsconfig.CAFile,
+	})
+	if err != nil {
+		fmt.Printf("could not load tls config: %v", err)
+		return
+	}
+	clientCreds := credentials.NewTLS(clientTLSConfig)
+	// Log service connection
+	log_conn, err := grpc.NewClient(*addr_log, grpc.WithTransportCredentials(clientCreds))
 
-	log_conn, err := grpc.NewClient(*addr_log, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		fmt.Printf("could not connect to log grpcserver: %v", err)
 		return
