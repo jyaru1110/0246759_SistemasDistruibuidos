@@ -9,6 +9,8 @@ services:
       dockerfile: ./images/log/Dockerfile
     ports:
       - "8080:8080"
+    volumes:
+      - ./data/logs:/app/data/logs
   todoservice:
     build: 
       context: ./
@@ -22,4 +24,6 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=jyaru
       - MONGO_INITDB_ROOT_PASSWORD=12345
+    volumes:
+      - ./data/db:/data/db
 
