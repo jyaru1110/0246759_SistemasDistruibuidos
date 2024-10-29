@@ -15,8 +15,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-var addr_todo = flag.String("addr_todo", "localhost:8081", "the address to connect to")
-var addr_log = flag.String("addr_log", "localhost:8080", "the address to connect to")
+var addr_todo = flag.String("addr_todo", "todoservice:8081", "the address to connect to")
+var addr_log = flag.String("addr_log", "logservice:8080", "the address to connect to")
 
 func main() {
 	todo_conn, err := grpc.NewClient(*addr_todo, grpc.WithTransportCredentials(insecure.NewCredentials()))
