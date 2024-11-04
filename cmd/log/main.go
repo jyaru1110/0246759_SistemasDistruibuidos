@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
-	api "server/api/v1"
+	"server/auth"
 	tlsconfig "server/config"
 	log "server/log"
 	servergrpc "server/logService"
@@ -19,11 +19,10 @@ func main() {
 	}
 
 	severTLSConfig, err := tlsconfig.SetupTLSConfig(tlsconfig.TLSConfig{
-		CertFile:      tlsconfig.ServerCertFile,
-		KeyFile:       tlsconfig.ServerKeyFile,
-		CAFile:        tlsconfig.CAFile,
-		ServerAddress: lis.Addr().String(),
-		Server:        true,
+		CertFile: tlsconfig.ServerCertFile,
+		KeyFile:  tlsconfig.ServerKeyFile,
+		CAFile:   tlsconfig.CAFile,
+		Server:   true,
 	})
 
 	if err != nil {
@@ -32,16 +31,25 @@ func main() {
 
 	serverCreds := credentials.NewTLS(severTLSConfig)
 
-	s := grpc.NewServer(grpc.Creds(serverCreds))
-	config := log.Config{}
+	clog, err := log.NewLog("./data/logs", log.Config{})
 
-	commitLog, err := log.NewLog("./data/logs", config)
+	authorizer := auth.New(tlsconfig.ACLModelFile, tlsconfig.ACLPolicyFile)
+
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	fmt.Println("Server is running on port :8080")
+	config := &servergrpc.Config{
+		CommitLog:  clog,
+		Authorizer: authorizer,
+	}
 
-	api.RegisterLogServer(s, &servergrpc.GrpcServer{CommitLog: commitLog})
+	s, err := servergrpc.NewGRPCServer(config, grpc.Creds(serverCreds))
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println("Server is running on port:8080")
 	s.Serve(lis)
 }
