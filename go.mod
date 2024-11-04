@@ -3,6 +3,7 @@ module server
 go 1.22.6
 
 require (
+	github.com/casbin/casbin v1.9.1
 	github.com/gorilla/mux v1.8.1
 	github.com/stretchr/testify v1.9.0
 	github.com/tysonmote/gommap v0.0.3
@@ -13,8 +14,10 @@ require (
 )
 
 require (
+	github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
+	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
