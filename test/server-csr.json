@@ -1,8 +1,7 @@
 {
     "MX": "127.0.0.1",
     "hosts": [
-        "localhost",
-        "127.0.0.1"
+        "logservice"
     ],
     "key": {
         "algo": "rsa",
